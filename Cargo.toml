@@ -3,4 +3,10 @@ name = "byo-redis"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "lib"
+path = "src/lib/mod.rs"
+
 [dependencies]
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
