@@ -8,5 +8,6 @@ name = "byo-redis-server"
 path = "src/bin/server.rs"
 
 [dependencies]
+bytes = "1"
 clap = { version = "4", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
