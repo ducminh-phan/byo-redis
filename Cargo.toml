@@ -3,9 +3,9 @@ name = "byo-redis"
 version = "0.1.0"
 edition = "2024"
 
-[lib]
-name = "lib"
-path = "src/lib/mod.rs"
+[[bin]]
+name = "byo-redis-server"
+path = "src/bin/server.rs"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }

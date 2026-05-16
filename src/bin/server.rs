@@ -15,7 +15,7 @@ struct Args {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> byo_redis::Result<()> {
     let args = Args::parse();
 
     let port = args.port.unwrap_or(6379);
@@ -23,11 +23,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Listening on {}:{}", bind_addr, port);
     let listener = TcpListener::bind((bind_addr, port)).await?;
+    byo_redis::server::run(listener).await;
 
-    loop {
-        let (stream, addr) = listener.accept().await?;
-        tokio::spawn(async move {
-            lib::server::process(stream, addr).await;
-        });
-    }
+    Ok(())
 }
