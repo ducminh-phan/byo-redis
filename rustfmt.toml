@@ -1,0 +1,8 @@
+# Group imports into: Standard Library, External Crates, and Local Crate
+group_imports = "StdExternalCrate"
+
+# Reorder imports within those groups
+reorder_imports = true
+
+# Control how imports are merged (e.g., use std::{fmt, io};)
+imports_granularity = "Crate"
