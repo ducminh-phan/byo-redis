@@ -1,0 +1,12 @@
+services:
+  server:
+    build: .
+    container_name: byo-redis-server
+
+  client:
+    image: redis
+    container_name: byo-redis-client
+    command: sleep infinity
+    depends_on:
+      server:
+        condition: service_started
