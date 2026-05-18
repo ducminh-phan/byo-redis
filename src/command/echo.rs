@@ -8,7 +8,7 @@ use crate::{
 };
 
 pub struct Echo {
-    pub message: Bytes,
+    message: Bytes,
 }
 
 impl Apply for Echo {

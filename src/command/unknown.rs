@@ -23,7 +23,7 @@ impl Apply for Unknown {
 }
 
 impl Unknown {
-    pub fn new(command_name: Bytes) -> Unknown {
-        Unknown { command_name }
+    pub fn new(command_name: Bytes) -> Self {
+        Self { command_name }
     }
 }

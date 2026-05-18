@@ -8,8 +8,8 @@ use crate::{
 };
 
 pub struct Set {
-    pub key: Bytes,
-    pub value: Bytes,
+    key: Bytes,
+    value: Bytes,
 }
 
 impl Apply for Set {
@@ -19,13 +19,13 @@ impl Apply for Set {
 }
 
 impl Set {
-    pub fn parse(parser: &mut Parser) -> Result<Set, ParseError> {
+    pub fn parse(parser: &mut Parser) -> Result<Self, ParseError> {
         // Read the key to set. This is a required field
         let key = parser.next_bytes()?;
 
         // Read the value to set. This is a required field.
         let value = parser.next_bytes()?;
 
-        Ok(Set { key, value })
+        Ok(Self { key, value })
     }
 }

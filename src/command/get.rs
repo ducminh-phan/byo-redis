@@ -8,7 +8,7 @@ use crate::{
 };
 
 pub struct Get {
-    pub key: Bytes,
+    key: Bytes,
 }
 
 impl Apply for Get {
@@ -18,12 +18,12 @@ impl Apply for Get {
 }
 
 impl Get {
-    pub fn parse(parser: &mut Parser) -> Result<Get, ParseError> {
+    pub fn parse(parser: &mut Parser) -> Result<Self, ParseError> {
         // The `GET` string has already been consumed. The next value is the
         // name of the key to get. If the next value is not a string or the
         // input is fully consumed, then an error is returned.
         let key = parser.next_bytes()?;
 
-        Ok(Get { key })
+        Ok(Self { key })
     }
 }
