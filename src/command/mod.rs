@@ -1,3 +1,4 @@
+pub mod echo;
 pub mod get;
 pub mod set;
 pub mod unknown;
@@ -5,7 +6,7 @@ pub mod unknown;
 use enum_dispatch::enum_dispatch;
 
 use crate::{
-    command::{get::Get, set::Set, unknown::Unknown},
+    command::{echo::Echo, get::Get, set::Set, unknown::Unknown},
     db::Db,
     frame::Frame,
     parse::Parser,
@@ -39,6 +40,7 @@ pub trait Apply {
 
 #[enum_dispatch(Apply)]
 pub enum Command {
+    Echo,
     Get,
     Set,
     Unknown,
@@ -72,6 +74,7 @@ impl Command {
         let command = match &command_name_lower[..] {
             b"get" => Command::Get(Get::parse(&mut parse)?),
             b"set" => Command::Set(Set::parse(&mut parse)?),
+            b"echo" => Command::Echo(Echo::parse(&mut parse)?),
 
             // The command is not recognized and an Unknown command is
             // returned.
