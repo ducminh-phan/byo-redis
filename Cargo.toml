@@ -13,3 +13,6 @@ bytes = "1"
 clap = { version = "4", features = ["derive"] }
 enum_dispatch = "0.3"
 tokio = { version = "1", features = ["full"] }
+
+[dev-dependencies]
+redis = { version = "1", features = ["tokio-comp"] }

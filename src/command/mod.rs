@@ -85,7 +85,7 @@ impl Command {
             // `return` is called here to skip the `finish()` call below. As
             // the command is not recognized, there are most likely
             // unconsumed fields remaining in the `Parse` instance.
-            _ => Command::Unknown(Unknown::new(command_name)),
+            _ => return Ok(Command::Unknown(Unknown::new(command_name))),
         };
 
         // Check if there are any remaining unconsumed fields in the `Parse`
