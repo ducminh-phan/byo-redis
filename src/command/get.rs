@@ -2,7 +2,7 @@ use bytes::Bytes;
 
 use super::{Apply, CommandError};
 use crate::{
-    db::Db,
+    db::{Db, Value},
     frame::Frame,
     parse::{ParseError, Parser},
 };
@@ -13,7 +13,11 @@ pub struct Get {
 
 impl Apply for Get {
     fn apply(self, db: &mut Db) -> Result<Frame, CommandError> {
-        todo!()
+        match db.data.get(&self.key) {
+            None => Ok(Frame::Null),
+            Some(Value::String(d)) => Ok(Frame::Bulk(d.clone())),
+            Some(_) => Err(CommandError::InvalidArgument),
+        }
     }
 }
 

@@ -1,3 +1,4 @@
+pub mod dbsize;
 pub mod echo;
 pub mod get;
 pub mod ping;
@@ -6,12 +7,8 @@ pub mod unknown;
 
 use enum_dispatch::enum_dispatch;
 
-use crate::{
-    command::{echo::Echo, get::Get, ping::Ping, set::Set, unknown::Unknown},
-    db::Db,
-    frame::Frame,
-    parse::Parser,
-};
+use self::{dbsize::DbSize, echo::Echo, get::Get, ping::Ping, set::Set, unknown::Unknown};
+use crate::{db::Db, frame::Frame, parse::Parser};
 
 #[derive(Debug)]
 pub enum CommandError {
@@ -41,6 +38,7 @@ pub trait Apply {
 
 #[enum_dispatch(Apply)]
 pub enum Command {
+    DbSize,
     Echo,
     Get,
     Ping,
@@ -78,6 +76,7 @@ impl Command {
             b"set" => Command::Set(Set::parse(&mut parse)?),
             b"echo" => Command::Echo(Echo::parse(&mut parse)?),
             b"ping" => Command::Ping(Ping::parse(&mut parse)?),
+            b"dbsize" => Command::DbSize(DbSize::parse(&mut parse)?),
 
             // The command is not recognized and an Unknown command is
             // returned.

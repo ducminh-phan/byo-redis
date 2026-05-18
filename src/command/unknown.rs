@@ -10,7 +10,7 @@ pub struct Unknown {
 }
 
 impl Apply for Unknown {
-    fn apply(self, db: &mut Db) -> Result<Frame, CommandError> {
+    fn apply(self, _db: &mut Db) -> Result<Frame, CommandError> {
         Ok(Frame::Error(
             format!(
                 "ERR unknown command '{}'",

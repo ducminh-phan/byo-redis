@@ -2,7 +2,7 @@ use bytes::Bytes;
 
 use super::{Apply, CommandError};
 use crate::{
-    db::Db,
+    db::{Db, Value},
     frame::Frame,
     parse::{ParseError, Parser},
 };
@@ -14,7 +14,8 @@ pub struct Set {
 
 impl Apply for Set {
     fn apply(self, db: &mut Db) -> Result<Frame, CommandError> {
-        todo!()
+        db.data.insert(self.key, Value::String(self.value));
+        Ok(Frame::Simple("OK".into()))
     }
 }
 
