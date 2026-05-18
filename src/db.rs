@@ -1,53 +1,52 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::{
+    collections::{HashMap, HashSet, VecDeque},
+    time::Instant,
+};
 
 use bytes::Bytes;
 use tokio::sync::{mpsc, oneshot};
 
-use crate::{command::Command, frame::Frame};
+use crate::{
+    command::{Apply, Command, CommandError},
+    frame::Frame,
+};
 
 #[derive(Debug)]
-enum Value {
+pub enum Value {
     String(Bytes),
     List(VecDeque<Bytes>),
     Set(HashSet<Bytes>),
     Hash(HashMap<Bytes, Bytes>),
 }
 
+#[derive(Default)]
+pub struct Db {
+    pub data: HashMap<Bytes, Value>,
+    pub expires: HashMap<Bytes, Instant>,
+}
+
 pub struct DbManager {
-    db: HashMap<Bytes, Value>,
+    db: Db,
     rx: mpsc::Receiver<DbRequest>,
 }
 
 pub struct DbRequest {
-    command: Command,
-    response: oneshot::Sender<Result<Frame, CommandError>>,
-}
-
-pub enum CommandError {
-    UnknownCommand,
-    WrongNumberOfArguments,
-    InvalidArgument,
-    InternalError,
+    pub command: Command,
+    pub response: oneshot::Sender<Result<Frame, CommandError>>,
 }
 
 impl DbManager {
     pub fn new(rx: mpsc::Receiver<DbRequest>) -> Self {
         Self {
-            db: HashMap::new(),
+            db: Db::default(),
             rx,
         }
     }
 
     pub async fn run(&mut self) {
         while let Some(DbRequest { command, response }) = self.rx.recv().await {
-            let result = self.apply(command);
+            let result = command.apply(&mut self.db);
             let _ = response.send(result);
-        }
-    }
-
-    pub fn apply(&mut self, command: Command) -> Result<Frame, CommandError> {
-        match command {
-            Command::Get => Ok(Frame::Simple("Hello World!".into())),
         }
     }
 }

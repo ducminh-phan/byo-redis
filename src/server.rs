@@ -1,12 +1,13 @@
-use std::net::SocketAddr;
-
 use tokio::{
-    io::AsyncWriteExt,
-    net::{TcpListener, TcpStream},
-    sync::mpsc,
+    net::TcpListener,
+    sync::{mpsc, oneshot},
 };
 
-use crate::db::{DbManager, DbRequest};
+use crate::{
+    command::Command,
+    connection::Connection,
+    db::{DbManager, DbRequest},
+};
 
 struct Server {
     listener: TcpListener,
@@ -29,7 +30,13 @@ impl Server {
             let (stream, addr) = self.listener.accept().await.unwrap();
             let tx = tx.clone();
             tokio::spawn(async move {
-                process(stream, addr, tx).await;
+                let mut handler = Handler {
+                    connection: Connection::new(stream),
+                    tx,
+                };
+                if let Err(e) = handler.handle().await {
+                    eprintln!("Error handling connection from {addr}: {e}");
+                }
             });
         }
     }
@@ -39,12 +46,32 @@ pub async fn run(listener: TcpListener) {
     Server::new(listener).run().await;
 }
 
-async fn process(mut stream: TcpStream, addr: SocketAddr, _tx: mpsc::Sender<DbRequest>) {
-    println!("Connection from {}", addr);
-    stream
-        .write_all(format!("Hello {:?}!\r\n", addr).as_bytes())
-        .await
-        .expect("Failed to write to socket")
+struct Handler {
+    connection: Connection,
+    tx: mpsc::Sender<DbRequest>,
+}
 
-    // TODO: Read commands from socket and process them
+impl Handler {
+    async fn handle(&mut self) -> crate::Result<()> {
+        loop {
+            let maybe_frame = self.connection.read_frame().await;
+            let frame = match maybe_frame {
+                Ok(Some(frame)) => frame,
+                Ok(None) => return Ok(()),
+                Err(e) => return Err(e.into()),
+            };
+
+            let command = Command::from_frame(frame)?;
+            let (tx, rx) = oneshot::channel();
+            self.tx
+                .send(DbRequest {
+                    command,
+                    response: tx,
+                })
+                .await
+                .expect("Failed to send command to db manager");
+
+            self.connection.write_frame(&rx.await??).await?;
+        }
+    }
 }
