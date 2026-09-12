@@ -1,3 +1,6 @@
+use std::{net::SocketAddr, thread, time::Duration};
+
+use metrics_exporter_prometheus::PrometheusBuilder;
 use tokio::{
     net::TcpListener,
     sync::{mpsc, oneshot},
@@ -42,8 +45,22 @@ impl Server {
     }
 }
 
-pub async fn run(listener: TcpListener) {
+pub async fn run(listener: TcpListener, metrics_addr: SocketAddr) -> crate::Result<()> {
+    PrometheusBuilder::new()
+        .with_http_listener(metrics_addr)
+        .install()?;
+    let collector = metrics_process::Collector::default();
+    collector.describe();
+
+    thread::spawn(move || {
+        loop {
+            collector.collect();
+            thread::sleep(Duration::from_secs(15));
+        }
+    });
+
     Server::new(listener).run().await;
+    Ok(())
 }
 
 struct Handler {

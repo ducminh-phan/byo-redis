@@ -1,4 +1,4 @@
-FROM rust:1.95 AS builder
+FROM rust:1-alpine3.24 AS builder
 ARG TARGETARCH
 WORKDIR /src
 RUN case "$TARGETARCH" in \
@@ -18,4 +18,4 @@ FROM scratch
 WORKDIR /
 COPY --from=builder /byo-redis-server .
 EXPOSE 6379
-CMD ["/byo-redis-server", "--bind", "0.0.0.0"]
+ENTRYPOINT ["/byo-redis-server"]

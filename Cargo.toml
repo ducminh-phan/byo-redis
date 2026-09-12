@@ -8,10 +8,13 @@ name = "byo-redis-server"
 path = "src/bin/server.rs"
 
 [dependencies]
-atoi = "2"
+atoi = "3"
 bytes = "1"
 clap = { version = "4", features = ["derive"] }
 enum_dispatch = "0.3"
+metrics = "0.24"
+metrics-exporter-prometheus = "0.18"
+metrics-process = "2"
 tokio = { version = "1", features = ["full"] }
 
 [dev-dependencies]
